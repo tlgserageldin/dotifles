@@ -25,10 +25,6 @@ vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
--- gruvbox colorscheme
-vim.o.background = "dark" -- or "light" for light mode
-vim.cmd([[colorscheme gruvbox]])
-
 -- fast update time
 vim.opt.updatetime = 50
 
