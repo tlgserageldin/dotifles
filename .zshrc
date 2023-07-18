@@ -99,3 +99,9 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 source ~/.zshaliases
+
+export FZF_DEFAULT_OPTS='--layout=reverse --height 40%'
+export FZF_DEFAULT_COMMAND="rg --files --hidden --follow"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

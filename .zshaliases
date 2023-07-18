@@ -1,8 +1,20 @@
+# ls aliases
 alias l='ls -al'
 alias ll='ls -l'
 alias la='ls -a'
 
+# alias over clang
 alias gcc='gcc-13'
 
+# neovim
 alias vim='nvim'
+alias v='vim'
+
+# zsh
+alias reload='source .zshrc'
+
+# dotfiles
 alias dotfiles='/usr/bin/git --git-dir=/Users/tariqs/.dotfiles/ --work-tree=/Users/tariqs'
+
+# fzf for directories only
+alias d='cd $(rg --hidden --sort-files --files --null 2> /dev/null | xargs -0 dirname 2> /dev/null | uniq | fzf)'
