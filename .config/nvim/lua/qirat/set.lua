@@ -30,3 +30,6 @@ vim.opt.updatetime = 50
 
 -- show where 80 char is
 vim.opt.colorcolumn = "80"
+
+-- keep 8 lines above or below cursor
+vim.opt.scrolloff = 8
