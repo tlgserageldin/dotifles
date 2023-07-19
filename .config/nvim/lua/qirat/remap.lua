@@ -24,8 +24,6 @@ vim.keymap.set('v', '<leader>y', '\"+y')
 vim.keymap.set('n', '<leader>d', '\"_d')
 vim.keymap.set('v', '<leader>d', '\"_d')
 
--- switch panes with Ctrl-[MOVEMENT]
-vim.keymap.set('n', '<C-j>', '<C-W>j')
-vim.keymap.set('n', '<C-k>', '<C-W>k')
-vim.keymap.set('n', '<C-h>', '<C-W>h')
-vim.keymap.set('n', '<C-l>', '<C-W>l')
+-- split and v-split with - and \\
+vim.keymap.set('n', '<C-w>-', vim.cmd.vsplit)
+vim.keymap.set('n', '<C-w>\\', vim.cmd.split)
