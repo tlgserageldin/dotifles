@@ -1,0 +1,31 @@
+---
+import: [~/.config/alacritty/rosepine.yml]
+live_config_reload: true
+
+window:
+  dimensions: { column = 90, lines = 120 }
+  padding: { x = 0, y = 0}
+  dynamic_padding: false
+  decorations: full
+  opacity: 1.0
+  startup_mode: Windowed
+  decoration_theme_variant: None
+  option_as_alt: Both
+
+scrolling:
+  history: 0
+  multiplier: 3
+
+font:
+  default: { family="Source Code Pro", style="Medium" }
+  bold: { family="Source Code Pro", style="Bold" }
+  italic: { family="Source Code Pro", style="Medium Italic" } 
+  bold_italic: { family="Source Code Pro", style="Black Italic" }
+  size: 14.0
+
+cursor:
+  style:
+    shape: Block
+    blinking: Off
+  unfocused_hollow: true
+  shell: { program = /bin/zsh }
