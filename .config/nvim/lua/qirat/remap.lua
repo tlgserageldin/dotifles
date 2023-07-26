@@ -25,5 +25,5 @@ vim.keymap.set('n', '<leader>d', '\"_d')
 vim.keymap.set('v', '<leader>d', '\"_d')
 
 -- split and v-split with - and \\
-vim.keymap.set('n', '<C-w>-', vim.cmd.vsplit)
-vim.keymap.set('n', '<C-w>\\', vim.cmd.split)
+vim.keymap.set('n', '<C-w>-', vim.cmd.split)
+vim.keymap.set('n', '<C-w>\\', vim.cmd.vsplit)

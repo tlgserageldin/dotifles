@@ -11,11 +11,14 @@ vim.opt.rnu = true
 -- indent
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
-vim.opt.expandtab = false
+vim.opt.expandtab = true
 vim.opt.smartindent = true
 
 -- no line wrap
 vim.opt.wrap = false
+
+-- mouse
+vim.opt.mouse = ""
 
 -- undo
 vim.opt.undofile = true
