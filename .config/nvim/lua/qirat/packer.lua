@@ -1,20 +1,28 @@
 -- This file can be loaded by calling `lua require('plugins')` from your init.vim
 
+-- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+
 -- Only required if you have packer configured as `opt`
 vim.cmd [[packadd packer.nvim]]
 
 return require('packer').startup(function(use)
 	use 'wbthomason/packer.nvim'
 
+    -- git
 	use {'tpope/vim-fugitive'}
 
-	use {
+    -- auto tabstop and spaces
+    use {'tpope/vim-sleuth'}
+
+    -- fuzzyfind
+	use ({
 		'nvim-telescope/telescope.nvim',
 		tag = '0.1.2',
 		requires = { {'nvim-lua/plenary.nvim'} }
-	}
+	})
 
-	use({
+    -- colors
+	use ({
 		'rose-pine/neovim',
 		as = 'rose-pine',
 		config = function ()
@@ -22,7 +30,37 @@ return require('packer').startup(function(use)
 		end
 	})
 
-	use ('nvim-treesitter/nvim-treesitter', {run = ':TSUpdate'})
+    use ({
+        'nvim-treesitter/nvim-treesitter', 
+        run = ':TSUpdate',
+        requires = { {'nvim-treesitter/nvim-treesitter-textobjects'} },
+    })
 
+    -- undotree
 	use ('mbbill/undotree')
+
+    -- lsp
+    use ({
+        'neovim/nvim-lspconfig',
+        requires = {
+            { 'williamboman/mason.nvim', config = true },
+            { 'williamboman/mason-lspconfig.nvim' },
+        }
+    })
+
+    -- autocomplete
+    use ({
+        'hrsh7th/nvim-cmp',
+        requires = {
+            {'L3MON4D3/LuaSnip'},
+            {'saadparwaiz1/cmp_luasnip'},
+            {'hrsh7th/cmp-nvim-lsp'},
+            {'hrsh7th/cmp-buffer'},
+            {'hrsh7th/cmp-path'},
+            {'hrsh7th/cmp-cmdline'},
+            {'hrsh7th/cmp-nvim-lsp-signature-help'},
+            {'hrsh7th/cmp-nvim-lua'},
+        }
+    })
+
 end)

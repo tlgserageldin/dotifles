@@ -1,5 +1,8 @@
+-- space is leader, dont do anything 
+vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+
 -- open netrw
-vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
+vim.keymap.set('n', '<leader>pv', vim.cmd.Ex, { desc = '[P]roject [V]iew'})
 
 -- keep cursor in same place when joining lines
 vim.keymap.set('n', 'J', 'mzJ`z')
