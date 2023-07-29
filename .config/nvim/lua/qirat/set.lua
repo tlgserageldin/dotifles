@@ -9,8 +9,8 @@ vim.wo.signcolumn = 'yes'
 vim.opt.guicursor = ""
 
 -- numbers
-vim.opt.nu = true
-vim.opt.rnu = true
+vim.opt.nu = false
+vim.opt.rnu = false
 
 -- indent
 vim.opt.tabstop = 4
