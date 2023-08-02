@@ -25,8 +25,13 @@ ls.add_snippets("all", {
 
 ls.add_snippets("c", {
     s("vmain", {
-        t({"int main(void) {", "    "}), i(1),
-        t({"","    return 0;"}),
+        t({"int main(void) {",}), i(1),
+        t({"","    return 0;", ""}),
+        t({"}"}),
+    }),
+    s("main", {
+        t({"int main(int argc, char* argv[argc+1]) {",}), i(1),
+        t({"","    return 0;", ""}),
         t({"}"}),
     }),
     s("for", {

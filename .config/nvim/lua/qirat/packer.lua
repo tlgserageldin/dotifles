@@ -6,14 +6,13 @@
 vim.cmd [[packadd packer.nvim]]
 
 return require('packer').startup(function(use)
-    -- self-managed pack man
-    use 'wbthomason/packer.nvim'
+    use ({'wbthomason/packer.nvim'})
 
     -- git
-    use {'tpope/vim-fugitive'}
+    use ({'tpope/vim-fugitive'})
 
     -- auto tabstop and spaces
-    use {'tpope/vim-sleuth'}
+    use ({'tpope/vim-sleuth'})
 
     -- fuzzyfind
     use ({
@@ -22,7 +21,7 @@ return require('packer').startup(function(use)
         requires = {
             {'nvim-lua/plenary.nvim'},
             {'nvim-telescope/telescope-fzf-native.nvim', run = 'make'},
-        }
+        },
     })
 
     -- colors
@@ -36,20 +35,22 @@ return require('packer').startup(function(use)
 
     -- treesitter
     use ({
-        'nvim-treesitter/nvim-treesitter', 
+        'nvim-treesitter/nvim-treesitter',
         run = ':TSUpdate',
-        requires = { {'nvim-treesitter/nvim-treesitter-textobjects'},
-            {'nvim-treesitter/nvim-treesitter-context'}},
+        requires = {
+            {'nvim-treesitter/nvim-treesitter-textobjects'},
+            {'nvim-treesitter/nvim-treesitter-context'},
+        },
     })
 
     -- undotree
-    use ('mbbill/undotree')
+    use ({'mbbill/undotree'})
 
     -- lsp
     use ({
         'neovim/nvim-lspconfig',
         requires = {
-            { 'williamboman/mason.nvim', config = true },
+            { 'williamboman/mason.nvim' },
             { 'williamboman/mason-lspconfig.nvim' },
         }
     })
