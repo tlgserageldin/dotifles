@@ -6,6 +6,6 @@ git clone --bare https://github.com/tlgserageldin/dotifles $HOME/.dotfiles
 dotfiles checkout
 ```
 
-#Font
+# Font
 JetBrainsMono Nerd Font
 
