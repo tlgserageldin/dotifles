@@ -1,7 +1,7 @@
 # Command for Migrating/New System
 ```sh
 echo ".dotfiles" >> .gitignore
-alias dotfiles='/usr/bin/git --git-dir=/Users/tariqs/.dotfiles/ --work-tree=/Users/tariqs'
+alias dotfiles='/usr/bin/git --git-dir=/Users/<USERNAME>/.dotfiles/ --work-tree=/Users/<USERNAME>'
 git clone --bare https://github.com/tlgserageldin/dotifles $HOME/.dotfiles
 dotfiles checkout
 ```
