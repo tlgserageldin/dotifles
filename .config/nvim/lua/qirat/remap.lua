@@ -30,3 +30,4 @@ vim.keymap.set('v', '<leader>d', '\"_d', { desc = 'delete to void' })
 -- split and v-split with - and \\
 vim.keymap.set('n', '<C-w>-', vim.cmd.split)
 vim.keymap.set('n', '<C-w>\\', vim.cmd.vsplit)
+

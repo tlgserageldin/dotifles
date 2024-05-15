@@ -11,9 +11,6 @@ return require('packer').startup(function(use)
     -- git
     use ({'tpope/vim-fugitive'})
 
-    -- auto tabstop and spaces
-    use ({'tpope/vim-sleuth'})
-
     -- fuzzyfind
     use ({
         'nvim-telescope/telescope.nvim',
@@ -25,13 +22,12 @@ return require('packer').startup(function(use)
     })
 
     -- colors
-    use ({
-        'rose-pine/neovim',
-        as = 'rose-pine',
+    use ({ 
+        "ellisonleao/gruvbox.nvim",
         config = function ()
-            vim.cmd('colorscheme rose-pine')
-        end
-    })
+            vim.cmd('colorscheme gruvbox')
+        end,
+     })
 
     -- treesitter
     use ({

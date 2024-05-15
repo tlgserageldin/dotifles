@@ -38,6 +38,24 @@ local on_attach = function(_, bufnr)
     end, { desc = 'Format current buffer with LSP' })
 end
 
+-- show / hide lsp diagnostic
+local function hide_diagnostics()
+    vim.diagnostic.config({  -- https://neovim.io/doc/user/diagnostic.html
+        virtual_text = false,
+        signs = false,
+        underline = false,
+    })
+end
+local function show_diagnostics()
+    vim.diagnostic.config({
+        virtual_text = true,
+        signs = true,
+        underline = true,
+    })
+end
+vim.keymap.set("n", "<leader>dh", hide_diagnostics, { desc = '[D]iagnostics [H]ide' })
+vim.keymap.set("n", "<leader>ds", show_diagnostics, { desc = '[D]iagnostics [S]how' } )
+
 -- define language servers
 local servers = {
   clangd = {},

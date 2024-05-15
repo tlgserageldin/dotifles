@@ -45,3 +45,4 @@ alias dotfiles='/usr/bin/git --git-dir=/Users/tariqs/.dotfiles/ --work-tree=/Use
 ## change to a fuzzy found sub-directory
 alias fd='cd $(rg --hidden --sort-files --files --null 2> /dev/null | xargs -0 dirname 2> /dev/null | uniq | fzf)'
 
+

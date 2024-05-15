@@ -5,16 +5,19 @@ vim.g.maplocalleader = " "
 -- keep the signcolumn on by defaul
 vim.wo.signcolumn = 'yes'
 
+-- foldmethod
+vim.opt.foldmethod = 'marker'
+
 -- highlight line the cursor is on
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 vim.opt.cursorlineopt = "line"
 
 -- fat cursor
 vim.opt.guicursor = ""
 
 -- numbers
-vim.opt.nu = false
-vim.opt.rnu = false
+vim.opt.nu = true
+vim.opt.rnu = true
 
 -- indent
 vim.opt.tabstop = 4
@@ -40,9 +43,6 @@ vim.o.smartcase = true
 
 -- fast update time
 vim.opt.updatetime = 50
-
--- show where 80 char is
-vim.opt.colorcolumn = ""
 
 -- keep 8 lines above or below cursor
 vim.opt.scrolloff = 8
