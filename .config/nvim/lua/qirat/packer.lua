@@ -29,6 +29,15 @@ return require('packer').startup(function(use)
         end,
      })
 
+    -- smart pairs
+    use ({
+        'ZhiyuanLck/smart-pairs',
+        event = 'InsertEnter',
+        config = function () 
+            require('pairs'):setup() 
+        end
+    })
+
     -- treesitter
     use ({
         'nvim-treesitter/nvim-treesitter',
