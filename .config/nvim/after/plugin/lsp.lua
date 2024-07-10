@@ -59,6 +59,7 @@ vim.keymap.set("n", "<leader>ds", show_diagnostics, { desc = '[D]iagnostics [S]h
 -- define language servers
 local servers = {
   clangd = {},
+  eslint = {},
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},

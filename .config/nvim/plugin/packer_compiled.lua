@@ -114,11 +114,11 @@ _G.packer_plugins = {
     path = "/Users/tariqs/.local/share/nvim/site/pack/packer/start/cmp_luasnip",
     url = "https://github.com/saadparwaiz1/cmp_luasnip"
   },
-  ["gruvbox.nvim"] = {
-    config = { "\27LJ\2\n7\0\0\3\0\3\0\0056\0\0\0009\0\1\0'\2\2\0B\0\2\1K\0\1\0\24colorscheme gruvbox\bcmd\bvim\0" },
+  ["kanagawa-paper.nvim"] = {
+    config = { "\27LJ\2\n>\0\0\3\0\3\0\0056\0\0\0009\0\1\0'\2\2\0B\0\2\1K\0\1\0\31colorscheme kanagawa-paper\bcmd\bvim\0" },
     loaded = true,
-    path = "/Users/tariqs/.local/share/nvim/site/pack/packer/start/gruvbox.nvim",
-    url = "https://github.com/ellisonleao/gruvbox.nvim"
+    path = "/Users/tariqs/.local/share/nvim/site/pack/packer/start/kanagawa-paper.nvim",
+    url = "https://github.com/sho-87/kanagawa-paper.nvim"
   },
   ["mason-lspconfig.nvim"] = {
     loaded = true,
@@ -165,14 +165,6 @@ _G.packer_plugins = {
     path = "/Users/tariqs/.local/share/nvim/site/pack/packer/start/plenary.nvim",
     url = "https://github.com/nvim-lua/plenary.nvim"
   },
-  ["smart-pairs"] = {
-    config = { "\27LJ\2\n7\0\0\3\0\3\0\a6\0\0\0'\2\1\0B\0\2\2\18\2\0\0009\0\2\0B\0\2\1K\0\1\0\nsetup\npairs\frequire\0" },
-    loaded = false,
-    needs_bufread = false,
-    only_cond = false,
-    path = "/Users/tariqs/.local/share/nvim/site/pack/packer/opt/smart-pairs",
-    url = "https://github.com/ZhiyuanLck/smart-pairs"
-  },
   ["telescope-fzf-native.nvim"] = {
     loaded = true,
     path = "/Users/tariqs/.local/share/nvim/site/pack/packer/start/telescope-fzf-native.nvim",
@@ -196,17 +188,10 @@ _G.packer_plugins = {
 }
 
 time([[Defining packer_plugins]], false)
--- Config for: gruvbox.nvim
-time([[Config for gruvbox.nvim]], true)
-try_loadstring("\27LJ\2\n7\0\0\3\0\3\0\0056\0\0\0009\0\1\0'\2\2\0B\0\2\1K\0\1\0\24colorscheme gruvbox\bcmd\bvim\0", "config", "gruvbox.nvim")
-time([[Config for gruvbox.nvim]], false)
-vim.cmd [[augroup packer_load_aucmds]]
-vim.cmd [[au!]]
-  -- Event lazy-loads
-time([[Defining lazy-load event autocommands]], true)
-vim.cmd [[au InsertEnter * ++once lua require("packer.load")({'smart-pairs'}, { event = "InsertEnter *" }, _G.packer_plugins)]]
-time([[Defining lazy-load event autocommands]], false)
-vim.cmd("augroup END")
+-- Config for: kanagawa-paper.nvim
+time([[Config for kanagawa-paper.nvim]], true)
+try_loadstring("\27LJ\2\n>\0\0\3\0\3\0\0056\0\0\0009\0\1\0'\2\2\0B\0\2\1K\0\1\0\31colorscheme kanagawa-paper\bcmd\bvim\0", "config", "kanagawa-paper.nvim")
+time([[Config for kanagawa-paper.nvim]], false)
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then
