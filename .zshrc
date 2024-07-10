@@ -43,6 +43,9 @@ alias reload='source $HOME/.zshrc'
 ## dotfiles
 alias dotfiles='/usr/bin/git --git-dir=/Users/tariqs/.dotfiles/ --work-tree=/Users/tariqs'
 ## change to a fuzzy found sub-directory
-alias fd='cd $(rg --hidden --sort-files --files --null 2> /dev/null | xargs -0 dirname 2> /dev/null | uniq | fzf)'
+alias sd='cd $(rg --hidden --sort-files --files --null 2> /dev/null | xargs -0 dirname 2> /dev/null | uniq | fzf)'
 
-
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
