@@ -28,10 +28,26 @@ return require('packer').startup(function(use)
   --         vim.cmd('colorscheme gruvbox')
   --     end,
   --  })
+
+  -- use ({
+  --   "sho-87/kanagawa-paper.nvim",
+  --   config = function ()
+  --     vim.cmd('colorscheme kanagawa-paper')
+  --   end,
+  -- })
+
   use ({
-    "sho-87/kanagawa-paper.nvim",
+    "aktersnurra/no-clown-fiesta.nvim",
     config = function ()
-      vim.cmd('colorscheme kanagawa-paper')
+      vim.cmd('colorscheme no-clown-fiesta')
+    end,
+  })
+
+  use ({
+    'p00f/alabaster.nvim',
+    config = function ()
+      vim.cmd('set termguicolors')
+      vim.cmd('colorscheme alabaster')
     end,
   })
 
