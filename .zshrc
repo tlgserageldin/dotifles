@@ -34,7 +34,7 @@ alias l='ls -al'
 alias ll='ls -l'
 alias la='ls -a'
 ## gcc explicit call
-alias gcc='gcc-13'
+alias gcc='gcc-14'
 ## neovim 
 alias vim='nvim'
 alias v='vim'
