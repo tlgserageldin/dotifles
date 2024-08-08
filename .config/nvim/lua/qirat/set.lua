@@ -35,6 +35,9 @@ vim.opt.mouse = ""
 vim.opt.undofile = true
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 
+-- disable swap files
+vim.opt.swapfile = false
+
 -- search
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
