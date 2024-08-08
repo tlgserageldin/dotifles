@@ -37,7 +37,7 @@ alias la='ls -a'
 alias gcc='gcc-14'
 ## neovim 
 alias vim='nvim'
-alias v='vim'
+alias v='nvim'
 ## reload
 alias reload='source $HOME/.zshrc'
 ## dotfiles
