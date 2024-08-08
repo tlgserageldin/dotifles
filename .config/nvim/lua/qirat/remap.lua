@@ -26,6 +26,8 @@ vim.keymap.set('v', '<leader>y', '\"+y', { desc = 'yank to clipboard' })
 -- delete to void instead of copying the deletion
 vim.keymap.set('n', '<leader>d', '\"_d', { desc = 'delete to void' })
 vim.keymap.set('v', '<leader>d', '\"_d', { desc = 'delete to void' })
+vim.keymap.set('n', '<leader>D', '\"_D', { desc = 'delete from cursor to end of line to void' })
+vim.keymap.set('v', '<leader>D', '\"_D', { desc = 'delete from cursor to end of line to void' })
 
 -- split and v-split with - and \\
 vim.keymap.set('n', '<C-w>-', vim.cmd.split)
