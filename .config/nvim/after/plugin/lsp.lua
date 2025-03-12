@@ -1,4 +1,19 @@
 local telescope = require('telescope.builtin')
+local lspconfig = require('lspconfig')
+local util = require('lspconfig/util')
+
+-- Setup for HTML Language Server
+lspconfig.html.setup({
+    filetypes = { "html" }, -- Use for HTML files
+})
+
+-- Format on save using prettier
+vim.api.nvim_create_autocmd("BufWritePre", {
+    pattern = { "*.html" },
+    callback = function()
+        vim.lsp.buf.format({ async = true })
+    end,
+})
 
 -- runs on every buffer with known lsp
 local on_attach = function(_, bufnr)
