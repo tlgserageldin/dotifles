@@ -1,0 +1,96 @@
+-- after/plugin/lsp.lua
+
+local lspconfig        = require("lspconfig")
+local mason            = require("mason")
+local mason_lspconfig  = require("mason-lspconfig")
+
+-- Bootstrap Mason
+mason.setup()
+
+-- Define LSP servers list
+local servers = {
+  "pyright",   -- Python
+  "clangd",    -- C/C++
+  "ts_ls",     -- JavaScript/TypeScript
+  "bashls",    -- Bash
+  "lua_ls",    -- Lua, including nvim
+}
+
+-- Tell Mason to install the servers
+mason_lspconfig.setup({
+  ensure_installed = servers,
+})
+
+-- Common on_attach & capabilities
+local on_attach = function(client, bufnr)
+  -- helper for creating buffer-local LSP mappings
+  local telescope = require("telescope.builtin")
+  local lspnmap = function(keys, func, desc)
+    if desc then
+      desc = 'LSP: ' .. desc
+    end
+    vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+  end
+
+  lspnmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+  lspnmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+
+  lspnmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+  lspnmap('gr', telescope.lsp_references, '[G]oto [R]eferences')
+  lspnmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+  lspnmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
+  lspnmap('<leader>ds', telescope.lsp_document_symbols, '[D]ocument [S]ymbols')
+  lspnmap('<leader>ws', telescope.lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+
+  lspnmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+  lspnmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+
+  lspnmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+  lspnmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
+  lspnmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
+  lspnmap('<leader>wl', function()
+    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  end, '[W]orkspace [L]ist Folders')
+
+  -- Create a `:Format` command
+  vim.api.nvim_buf_create_user_command(bufnr,
+    'Format',
+    function(_) vim.lsp.buf.format() end,
+    { desc = 'Format current buffer with LSP' }
+  )
+end
+
+-- Set up capabilities (for cmp-nvim-lsp)
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+
+-- Loop and set up each server
+for _, srv in ipairs(servers) do
+  local opts = {
+    on_attach    = on_attach,
+    capabilities = capabilities,
+  }
+
+  if srv == "lua_ls" then
+    opts.settings = {
+      Lua = {
+        runtime = {
+          version = "LuaJIT",
+          path = vim.split(package.path, ";"),
+        },
+        diagnostics = {
+          globals = { "vim" },
+        },
+        workspace = {
+          library = vim.api.nvim_get_runtime_file("", true),
+          checkThirdParty = false,
+        },
+        telemetry = {
+          enable = false,
+        },
+      },
+    }
+  end
+
+  lspconfig[srv].setup(opts)
+end
