@@ -3,15 +3,11 @@ return {
 
   -- LSP + Mason
   { "williamboman/mason.nvim", opts = {} }, -- load immediately
-  { "williamboman/mason-lspconfig.nvim", 
-    dependencies = "mason.nvim",
-    opts = {} },
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim"
     },
     config = function()
       require("qirat.lsp")
@@ -107,8 +103,10 @@ return {
   -- undotree
   {
     "mbbill/undotree",
+    lazy = false,
     cmd = "UndotreeToggle",
+    config = function()
+      require('qirat.undotree')
+    end,
   },
-
-  -- any other plugins you had in your packer.lua...
 }

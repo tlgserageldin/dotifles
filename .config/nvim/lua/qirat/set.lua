@@ -1,6 +1,3 @@
--- set leader
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
 
 -- keep the signcolumn on by defaul
 vim.wo.signcolumn = 'yes'

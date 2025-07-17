@@ -33,3 +33,6 @@ vim.keymap.set('v', '<leader>D', '\"_D', { desc = 'delete from cursor to end of 
 vim.keymap.set('n', '<C-w>-', vim.cmd.split)
 vim.keymap.set('n', '<C-w>\\', vim.cmd.vsplit)
 
+-- make ctrl-c behave like esc in insert mode
+-- mostly to correctly propogate my block highlight inserts
+vim.keymap.set('i', '<C-c>', '<Esc>')

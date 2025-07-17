@@ -47,7 +47,7 @@ local on_attach = function(client, bufnr)
 
   buf_map("<leader>rn", vim.lsp.buf.rename, "Rename")
   buf_map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
-  buf_map("gd", vim.lsp.buf.definition, "Goto Definition")
+  buf_map("gd", telescope.lsp_definitions, "Goto Definition")
   buf_map("gr", telescope.lsp_references, "References")
   buf_map("gI", vim.lsp.buf.implementation, "Implementation")
   buf_map("<leader>D", vim.lsp.buf.type_definition, "Type Definition")
@@ -61,6 +61,7 @@ local on_attach = function(client, bufnr)
   buf_map("<leader>wl", function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, "List Workspace Folders")
+  buf_map("<leader>e", vim.diagnostic.open_float, "[E]rror")
 
   vim.api.nvim_buf_create_user_command(bufnr, "Format", function()
     vim.lsp.buf.format()
@@ -71,7 +72,7 @@ local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protoc
 
 -- -- after you define `servers` and before the for‐loop, insert:
 -- vim.notify("LSP setup: checking servers “" .. table.concat(servers, ", ") .. "”", vim.log.levels.INFO)
--- 
+--
 -- -- then change your loop to:
 -- for _, name in ipairs(servers) do
 --   local mod = lspconfig[name]
@@ -97,9 +98,10 @@ local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protoc
 --   end
 -- end
 -- Setup each server
+-- In your lsp.lua, replace the setup loop with this:
 for _, name in ipairs(servers) do
   local opts = { on_attach = on_attach, capabilities = capabilities }
-
+  
   if name == "lua_ls" then
     opts.settings = {
       Lua = {
@@ -110,6 +112,6 @@ for _, name in ipairs(servers) do
       },
     }
   end
-
+  
   lspconfig[name].setup(opts)
 end
