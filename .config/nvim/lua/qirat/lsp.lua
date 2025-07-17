@@ -9,18 +9,36 @@ mason.setup()
 
 -- Define LSP servers list
 local servers = {
-  "pyright",   -- Python
-  "clangd",    -- C/C++
-  "ts_ls",  -- JavaScript/TypeScript
-  "bashls",    -- Bash
-  "lua_ls",    -- Lua, including Neovim
+  "jedi_language_server",  -- Python
+  "clangd",                -- C/C++
+  "ts_ls",                 -- JavaScript/TypeScript
+  "bashls",                -- Bash
+  "lua_ls",                -- Lua, including Neovim
 }
 
 -- Ensure the servers are installed
-mason_lspconfig.setup({ ensure_installed = servers, })
+-- is a double call to setup, just let it loop
+-- mason_lspconfig.setup({ ensure_installed = servers, })
 
 -- Common on_attach and capabilities
 local on_attach = function(client, bufnr)
+  if vim.bo[bufnr].filetype == 'python' then
+    vim.api.nvim_create_autocmd("BufWritePost", {
+      buffer = bufnr,
+      callback = function()
+        vim.fn.system("black " .. vim.fn.shellescape(vim.fn.expand("%")))
+        vim.cmd("edit") -- reload the buffer
+      end,
+    })
+  elseif client.server_capabilities.documentFormattingProvider then
+    vim.api.nvim_create_autocmd("BufWritePost", {
+      buffer = bufnr,
+      callback = function()
+        vim.lsp.buf.format({ bufnr = bufnr })
+      end,
+    })
+  end
+
   local telescope = require("telescope.builtin")
   local function buf_map(keys, func, desc)
     if desc then desc = "LSP: " .. desc end
