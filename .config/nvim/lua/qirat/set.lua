@@ -1,4 +1,3 @@
-
 -- keep the signcolumn on by defaul
 vim.wo.signcolumn = 'yes'
 
@@ -46,3 +45,10 @@ vim.opt.updatetime = 50
 
 -- keep 8 lines above or below cursor
 vim.opt.scrolloff = 8
+
+-- netrw
+vim.g.netrw_banner = 0              -- hide banner
+vim.g.netrw_liststyle = 3           -- tree view
+vim.g.netrw_browse_split = 2        -- open files in vertical split
+vim.opt.splitright = true           -- make splits open to the right
+vim.g.netrw_winsize = 25            -- set width of explorer

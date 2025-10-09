@@ -9,11 +9,12 @@ mason.setup()
 
 -- Define LSP servers list
 local servers = {
-  "jedi_language_server",  -- Python
-  "clangd",                -- C/C++
-  "ts_ls",                 -- JavaScript/TypeScript
-  "bashls",                -- Bash
-  "lua_ls",                -- Lua, including Neovim
+  "jedi_language_server",    -- Python
+  "clangd",                  -- C/C++
+  "ts_ls",                   -- JavaScript/TypeScript
+  "bashls",                  -- Bash
+  "lua_ls",                  -- Lua, including Neovim
+  "arduino_language_server", -- Arduino
 }
 
 -- Ensure the servers are installed
@@ -23,13 +24,13 @@ local servers = {
 -- Common on_attach and capabilities
 local on_attach = function(client, bufnr)
   if vim.bo[bufnr].filetype == 'python' then
-    vim.api.nvim_create_autocmd("BufWritePost", {
-      buffer = bufnr,
-      callback = function()
-        vim.fn.system("black " .. vim.fn.shellescape(vim.fn.expand("%")))
-        vim.cmd("edit") -- reload the buffer
-      end,
-    })
+    -- vim.api.nvim_create_autocmd("BufWritePost", {
+    --   buffer = bufnr,
+    --   callback = function()
+    --     vim.fn.system("black " .. vim.fn.shellescape(vim.fn.expand("%")))
+    --     vim.cmd("edit") -- reload the buffer
+    --   end,
+    -- })
   elseif client.server_capabilities.documentFormattingProvider then
     vim.api.nvim_create_autocmd("BufWritePost", {
       buffer = bufnr,
@@ -101,7 +102,7 @@ local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protoc
 -- In your lsp.lua, replace the setup loop with this:
 for _, name in ipairs(servers) do
   local opts = { on_attach = on_attach, capabilities = capabilities }
-  
+
   if name == "lua_ls" then
     opts.settings = {
       Lua = {
@@ -111,7 +112,26 @@ for _, name in ipairs(servers) do
         telemetry = { enable = false },
       },
     }
+  elseif name == "arduino_language_server" then
+    opts.cmd = {
+      "arduino-language-server",
+      "-cli-config", vim.fn.expand("~/.arduino15/arduino-cli.yaml"),
+      "-fqbn", "arduino:avr:uno", -- Default board, can be overridden
+      "-cli", "arduino-cli",
+      "-clangd", "clangd"
+    }
+    opts.filetypes = { "arduino", "cpp" }
+  elseif name == "clangd" then
+    -- Enhanced clangd config for Arduino support
+    opts.cmd = {
+      "clangd",
+      "--compile-commands-dir=build",
+      "--header-insertion=never",
+      "--clang-tidy",
+      "--completion-style=detailed"
+    }
+    opts.filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "arduino" }
   end
-  
+
   lspconfig[name].setup(opts)
 end

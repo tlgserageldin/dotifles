@@ -13,6 +13,5 @@ require("qirat.set")
 -- lazy.nvim bootstrap
 require("lazy").setup("qirat.plugins", {
   defaults = { lazy = true },
-  install = { colorscheme = { "tokyonight", "gruvbox" } },
   performance = { rtp = { disabled_plugins = { "gzip" } } },
 })

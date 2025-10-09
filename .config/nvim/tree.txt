@@ -1,0 +1,25 @@
+.
+├── after
+│   ├── ftplugin
+│   │   ├── c.lua
+│   │   └── markdown.lua
+│   └── plugin
+├── init.lua
+├── lazy-lock.json
+├── lua
+│   └── qirat
+│       ├── cmp.lua
+│       ├── lsp.lua
+│       ├── lsp.lua.old
+│       ├── luasnip.lua
+│       ├── plugins.lua
+│       ├── plugins.lua.old
+│       ├── remap.lua
+│       ├── set.lua
+│       ├── telescope.lua
+│       ├── treesitter.lua
+│       └── undotree.lua
+├── plugin
+└── tree.txt
+
+7 directories, 16 files

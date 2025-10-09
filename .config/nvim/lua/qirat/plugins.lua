@@ -8,6 +8,7 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
     },
     config = function()
       require("qirat.lsp")
@@ -30,11 +31,22 @@ return {
       require("qirat.cmp")
     end,
   },
+
+  -- colorscheme
+  {
+    "phha/zenburn.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.cmd.colorscheme("zenburn")
+    end,
+  },
+
   -- lazy itself
-  { "folke/lazy.nvim",        version = "*" },
+  { "folke/lazy.nvim",         version = "*" },
 
   -- git
-  { "tpope/vim-fugitive",     cmd = { "G", "Git" } },
+  { "tpope/vim-fugitive",      cmd = { "G", "Git" } },
 
   -- telescope and fzf
   {
@@ -52,14 +64,14 @@ return {
       telescope.setup({
         defaults = {
           -- point Telescope at the fzf sorter:
-          file_sorter      = require("telescope.sorters").get_fzf_sorter,
-          generic_sorter   = require("telescope.sorters").get_fzf_sorter,
+          file_sorter    = require("telescope.sorters").get_fzf_sorter,
+          generic_sorter = require("telescope.sorters").get_fzf_sorter,
           -- any other defaults…
         },
         extensions = {
           fzf = {
-            override_generic_sorter = true,  -- use for all sorts
-            override_file_sorter    = true,  -- use for file sorts
+            override_generic_sorter = true, -- use for all sorts
+            override_file_sorter    = true, -- use for file sorts
             case_mode               = "smart_case",
           },
         },
@@ -73,8 +85,8 @@ return {
   -- treesitter
   {
     "nvim-treesitter/nvim-treesitter",
-    build        = ":TSUpdate",
-    event        = { "BufReadPre", "BufNewFile" },
+    build  = ":TSUpdate",
+    event  = { "BufReadPre", "BufNewFile" },
     config = function() require("qirat.treesitter") end,
   },
 
@@ -95,9 +107,9 @@ return {
   {
     "L3MON4D3/LuaSnip",
     event = "InsertEnter",
-    config = function() 
-               require("luasnip").config.set_config{} 
-             end,
+    config = function()
+      require("luasnip").config.set_config {}
+    end,
   },
 
   -- undotree
@@ -107,6 +119,16 @@ return {
     cmd = "UndotreeToggle",
     config = function()
       require('qirat.undotree')
+    end,
+  },
+
+  -- Arduino support
+  {
+    "stevearc/vim-arduino",
+    ft = { "arduino", "cpp" },
+    event = { "BufReadPre *.ino", "BufNewFile *.ino", "BufReadPre *.pde", "BufNewFile *.pde" },
+    config = function()
+      require("qirat.arduino")
     end,
   },
 }

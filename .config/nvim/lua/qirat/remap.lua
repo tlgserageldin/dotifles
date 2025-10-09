@@ -1,14 +1,25 @@
--- space is leader, dont do anything 
+-- space is leader, dont do anything
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true, desc = 'Make space do nothing' })
 
+
+-- Toggle function
+local function toggle_netrw()
+  local bufname = vim.api.nvim_buf_get_name(0)
+  if bufname:match("NetrwTreeListing") then
+    vim.cmd("bd")
+  else
+    vim.cmd("Lexplore")
+  end
+end
+
 -- open netrw
-vim.keymap.set('n', '<leader>pv', vim.cmd.Ex, { desc = '[P]roject [V]iew'})
+vim.keymap.set('n', '<leader>pv', toggle_netrw, { desc = '[P]roject [V]iew' })
 
 -- keep cursor in same place when joining lines
 vim.keymap.set('n', 'J', 'mzJ`z', { desc = 'Join line in place' })
 
 -- keep cursor in place when scrolling pages
-vim.keymap.set('n', '<C-u>', '<C-u>zz',{ desc = 'Page up in place' } )
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Page up in place' })
 vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Page down in place' })
 
 -- keep cursor in the middle when searching
