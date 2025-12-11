@@ -1,0 +1,226 @@
+#+PROPERTY: header-args:emacs-lisp :tangle init.el :results silent
+#+TITLE: Emacs Configuration (Literate)
+#+AUTHOR: TLGS
+
+* Customize File
+Keep Customize from polluting this file by redirecting it to =custom.el=.
+
+#+begin_src emacs-lisp
+;; dont pollute this file with cutomize
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+#+end_src
+
+
+* Org Mode and Markdown
+Org-babel language setup, structure templates, and convenient navigation between
+headings in Org and Markdown.
+
+#+begin_src emacs-lisp
+;; ORG MODE
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (python . t)))
+
+(require 'org-tempo)
+
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
+
+;; go to next heading
+(defun my-md-mode-hook ()
+  (define-key markdown-mode-map (kbd "C-v") 'markdown-next-visible-listing)
+  (define-key markdown-mode-map (kbd "M-v") 'markdown-previous-visible-listing))
+(add-hook 'markdown-mode-hook 'my-md-mode-hook)
+
+(defun my-org-mode-hook ()
+  (define-key org-mode-map (kbd "C-v") 'org-next-visible-heading)
+  (define-key org-mode-map (kbd "M-v") 'org-previous-visible-heading))
+(add-hook 'org-mode-hook 'my-org-mode-hook)
+#+end_src
+
+
+* Core UI and Editing Behaviour
+Startup tweaks, UI chrome, line numbers, fonts, and macOS modifier keys.
+
+#+begin_src emacs-lisp
+;; simplify interface
+(setq inhibit-startup-message t)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(tooltip-mode -1)
+(set-fringe-mode 10)
+(menu-bar-mode -1)
+(setq visible-bell nil)
+
+;; line numbers
+(column-number-mode)
+(global-display-line-numbers-mode t)
+;; dont have line numbers for certain modes
+(dolist (mode '(org-mode-hook
+		term-mode-hook
+		eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+;; sane font size
+(set-face-attribute 'default nil :font "Cousine Nerd Font Mono" :height 280)
+
+;; command key is meta
+(setq mac-option-key-is-meta nil
+      mac-command-key-is-meta t
+      mac-command-modifier 'meta
+      mac-option-modifier 'none)
+#+end_src
+
+
+* Package Management
+Configure =package.el= and bootstrap =use-package=.
+
+#+begin_src emacs-lisp
+;; setup packages
+(require 'package)
+
+;; make esc close prompts
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			 ("org" . "https://orgmode.org/elpa")
+			 ("elpa" . "https://elpa.gnu.org/packages/")))
+
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
+;; init use-package
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+#+end_src
+
+
+* Completion, Search, and Minibuffer UX
+Ivy/counsel/ivy-rich for minibuffer completion and search.
+
+#+begin_src emacs-lisp
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+	 ("C-x b" . counsel-ibuffer)
+	 ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history))
+  :config
+  (setq ivy-initial-inputs-alist nil))
+
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+	 :map ivy-minibuffer-map
+	 ("Tab" . ivy-alt-done)
+	 ("C-l" . ivy-alt-done)
+	 ("C-j" . ivy-next-line)
+	 ("C-k" . ivy-previous-line)
+	 :map ivy-switch-buffer-map
+	 ("C-k" . ivy-previoud-line)
+	 ("C-l" . ivy-done)
+	 ("C-d" . ivy-switch-buffer-kill)
+	 :map ivy-reverse-i-search-map
+	 ("C-k" . ivy-previous-line)
+	 ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+
+(use-package ivy-rich
+  :init
+  (ivy-rich-mode 1))
+#+end_src
+
+
+* Visual Enhancements
+Nerd icons, Doom modeline, and themes.
+
+#+begin_src emacs-lisp
+(use-package nerd-icons
+  ;; :custom
+  ;; The Nerd Font you want to use in GUI
+  ;; "Symbols Nerd Font Mono" is the default and is recommended
+  ;; but you can use any other Nerd Font if you want
+  ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
+  )
+
+;; doom modeline
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 15)))
+
+(use-package doom-themes
+  :config
+  (load-theme 'doom-gruvbox t)
+  (doom-themes-org-config))
+#+end_src
+
+
+* Key Discovery and Help
+which-key and helpful integrations.
+
+#+begin_src emacs-lisp
+;; which-key
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 0.3))
+
+;; helpful
+(use-package helpful
+  :ensure t
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
+#+end_src
+
+
+* (Optional) General Keybinding Framework
+Commented-out =general.el= setup kept here for future expansion.
+
+#+begin_src emacs-lisp
+;;;; useful for creating more complex keybindings later
+;;(use-package general
+;;  :config
+;;  (general-create-definer tlgs/magit
+;;    :prefix "M-g")
+;;
+;;  (tlgs/magit
+;;    "t"  '(:ignore t :which-key "toggles")
+;;    "tt" '(counsel-load-theme :which-key "choose theme")))
+#+end_src
+
+
+* Project Management
+Projectile and counsel-projectile for project navigation.
+
+#+begin_src emacs-lisp
+;; projectile
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  (when (file-directory-p "~/Documents/projects/code")
+    (setq projectile-project-search-path '("~/Documents/projects/code")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
+#+end_src
