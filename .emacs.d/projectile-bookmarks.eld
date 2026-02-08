@@ -1,0 +1,1 @@
+("~/Documents/projects/code/one_billion_lines/" "~/Documents/projects/code/q_strings/" "~/Documents/projects/code/test_helpers/" "~/Documents/projects/code/hash_table/" "~/Documents/projects/code/find_todo_emacs/" "~/Documents/projects/code/learning/" "/private/tmp/stb/")

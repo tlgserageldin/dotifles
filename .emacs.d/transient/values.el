@@ -1,0 +1,1 @@
+((magit-remote "-f"))

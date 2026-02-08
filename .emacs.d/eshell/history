@@ -1,0 +1,21 @@
+exit
+test 3 -lt 1
+test 1 -lt 1
+test 0 -lt 1
+source .zshrc
+source ~/.zshrc 
+zsh
+exit
+./build/tests
+l
+ls -al
+pandoc thoughts.org -o thoughts.pdf
+ls
+pandoc final_thoughts.org -o final_thoughts.pdf
+start_wg_us
+source .zshrc
+clear
+exit
+l
+ls -h
+exit

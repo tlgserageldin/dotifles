@@ -1,0 +1,907 @@
+#+PROPERTY: header-args:emacs-lisp :tangle init.el :results silent
+#+TITLE: Emacs Configuration (Literate)
+#+AUTHOR: TLGS
+
+* Customize File
+Keep Customize from polluting this file by redirecting it to =custom.el=.
+
+#+begin_src emacs-lisp
+;; dont pollute this file with cutomize
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+#+end_src
+
+* Package Management
+Configure =package.el= and bootstrap =use-package=.
+
+#+begin_src emacs-lisp
+
+(require 'package)
+
+
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			 ("org" . "https://orgmode.org/elpa")
+			 ("elpa" . "https://elpa.gnu.org/packages/")))
+
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+#+end_src
+
+* Programming Support
+
+** C mode
+
+Have RET create newline and indent.
+#+begin_src emacs-lisp
+  (add-hook 'c-mode-common-hook (lambda ()
+                                  (setq c-basic-offset 4)
+                                  (setq c-default-style "linux") ; or "bsd", "k&r", etc.
+                                  ))
+#+end_src
+
+** LSP
+*** LSP Mode
+
+Language Server Protocol client for Emacs. Provides IDE-like features:
+- Go-to-definition (`M-.`)
+- Find references
+- Hover docs
+- Code actions / refactoring
+- Symbol rename
+- Completions via company/capf
+- Per-language intelligence via external LSP servers
+
+This setup loads `lsp-mode` lazily and activates LSP in common programming modes
+using `lsp-deferred` to avoid blocking startup.
+
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :init
+    ;; Prefix for lsp-command-map (C-c l ...)
+    (setq lsp-keymap-prefix "C-c l")
+
+    ;; Performance / UX settings
+    (setq lsp-enable-symbol-highlighting t
+          lsp-enable-snippet t
+          lsp-prefer-flymake nil) ;; prefer flycheck if present
+
+    :hook ((c-mode          . lsp-deferred)
+           (c++-mode        . lsp-deferred)
+           (python-mode     . lsp-deferred)
+           (rust-mode       . lsp-deferred)
+           (go-mode         . lsp-deferred)
+           (js-mode         . lsp-deferred)
+           (js-ts-mode      . lsp-deferred)
+           (typescript-mode . lsp-deferred)
+           (tsx-ts-mode     . lsp-deferred)
+           (lua-mode        . lsp-deferred)
+           (sh-mode         . lsp-deferred)))
+
+  ;; UI extras (hover docs, sideline info)
+  (use-package lsp-ui
+    :after lsp-mode
+    :commands lsp-ui-mode)
+
+  ;; Company for completions (via capf)
+  (use-package company
+    :config
+    (global-company-mode 1))
+  
+  (with-eval-after-load 'company
+    (add-to-list 'company-backends 'company-capf))
+#+end_src
+
+Allow C-h to fallthrough to emacs when company is active
+#+begin_src emacs-lisp
+(with-eval-after-load 'company
+  ;; Don't let company grab C-h while the popup is active
+  (define-key company-active-map (kbd "C-h") nil)
+  ;; Optional: also free up F1 as help
+  (define-key company-active-map (kbd "<f1>") nil))
+#+end_src
+
+Make company use C-<return> complete selection so TAB and RET always enter new text.
+#+begin_src emacs-lisp
+  (with-eval-after-load 'company
+    ;; Enter = newline
+    (define-key company-active-map (kbd "<return>") nil)
+    (define-key company-active-map (kbd "RET") nil)
+    (define-key company-active-map (kbd "C-m") nil)
+
+    ;; Explicit completion keys
+    (define-key company-active-map (kbd "C-<return>") #'company-complete-selection))
+#+end_src
+
+*** Language Servers (Installation)
+The following language servers are used by =lsp-mode= hooks above.
+Install them with your system package manager.
+
+**** C / C++ — clangd
+- Server: =clangd=
+- Used for: =c-mode=, =c++-mode=
+
+#+begin_src shell
+# Homebrew (recommended)
+brew install llvm
+
+# Optionally add to PATH if needed:
+# echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> ~/.zshrc
+# clangd --version
+#+end_src
+
+**** Python — pyright
+- Server: =pyright=
+- Used for: =python-mode=
+
+#+begin_src shell
+# Node-based (original)
+npm install -g pyright
+
+# Or Python wrapper variant:
+# pip install pyright
+#+end_src
+
+**** Rust — rust-analyzer
+- Server: =rust-analyzer=
+- Used for: =rust-mode=
+
+#+begin_src shell
+# Homebrew
+brew install rust-analyzer
+
+# Or via rustup:
+# rustup component add rust-analyzer
+#+end_src
+
+**** Go — gopls
+- Server: =gopls=
+- Used for: =go-mode=
+
+#+begin_src shell
+# Go toolchain required
+go install golang.org/x/tools/gopls@latest
+#+end_src
+
+**** JavaScript / TypeScript — tsserver
+- Server: =tsserver= (via =typescript= package)
+- Used for: =js-mode=, =js-ts-mode=, =typescript-mode=, =tsx-ts-mode=
+
+#+begin_src shell
+npm install -g typescript typescript-language-server
+#+end_src
+
+**** Lua — lua-language-server
+- Server: =lua-language-server=
+- Used for: =lua-mode=
+
+#+begin_src shell
+# Homebrew
+brew install lua-language-server
+#+end_src
+
+**** Shell / Bash — bash-language-server
+- Server: =bash-language-server=
+- Used for: =sh-mode=, =bash-mode=
+
+#+begin_src shell
+npm install -g bash-language-server
+#+end_src
+
+**** Verifying LSP Setup
+After installing servers:
+
+1. Open a file in the relevant mode (e.g. =.c=, =.py=, =.rs=).
+2. Ensure =lsp-mode= starts (look for “LSP” in the modeline).
+3. Test:
+   - =M-.= → go to definition
+   - =M-?= → find references
+   - =C-c l= → LSP command map
+*** LSP Debugging
+Useful tools and workflows when an LSP server is not starting or not behaving as expected.
+
+**** Check LSP Logs
+Shows communication between Emacs and the language server.
+
+#+begin_src emacs-list :tangle no
+;; Open the main LSP log buffer
+(lsp-workspace-show-log)
+#+end_src
+
+Or interactively:
+
+- =M-x lsp-describe-session=
+- =M-x lsp-workspace-show-log=
+
+These buffers often reveal missing executables, crashed servers, or invalid workspace roots.
+
+**** Restart the LSP Server
+Sometimes the server needs a clean restart after config or dependency changes.
+
+#+begin_src emacs-list :tangle no
+(lsp-workspace-restart)
+#+end_src
+
+Interactive:
+
+- =M-x lsp-workspace-restart=
+- =C-c l r= (if using lsp-command-map)
+
+**** Verify the Server Executable
+If the server isn’t starting, confirm it's on PATH. Examples:
+
+#+begin_src shell
+which clangd
+which pyright
+which rust-analyzer
+which gopls
+#+end_src
+
+If Emacs was launched from GUI (macOS), PATH may differ from shell PATH.  
+Solution: initialize PATH inside Emacs:
+
+#+begin_src emacs-list :tangle no
+(use-package exec-path-from-shell
+  :config
+  (exec-path-from-shell-initialize))
+#+end_src
+
+**** Check the Project Root Detection
+LSP uses project “root markers” (e.g., =compile_commands.json=, =pyproject.toml=, =go.mod=, =Cargo.toml=).
+
+If detection fails, override manually:
+
+#+begin_src emacs-list :tangle no
+;; Force a directory as LSP project root
+(setq lsp-client-packages '(lsp-clients))
+#+end_src
+
+Use:
+
+- =M-x lsp-workspace-folders-add=
+- =M-x lsp-workspace-folders-remove=
+
+**** Common Diagnoses
+
+- **Server installed but not found** → PATH issue  
+- **Server exits immediately** → missing dependency, invalid config file  
+- **Definition jumps don't work** → incomplete project root  
+- **Hover/docs not showing** → missing capabilities in server or disabled in lsp-ui  
+- **High CPU** → disable semantic tokens or code lenses  
+
+#+begin_src emacs-list :tangle no
+(setq lsp-semantic-tokens-enable nil)
+(setq lsp-lens-enable nil)
+#+end_src
+
+**** Check Capabilities
+Useful to see what features the server supports:
+
+- =M-x lsp-capabilities=
+
+**** Enable Verbose LSP Logs (for deep debugging)
+#+begin_src emacs-list :tangle no
+(setq lsp-log-io t)
+#+end_src
+
+This logs every message sent/received.  
+Turn it off afterward; it gets noisy.
+
+**** Final Step: Clean Workspace
+Sometimes leftover metadata causes odd behavior.
+
+- =M-x lsp-workspace-restart=
+- or delete =.lsp-session-v1= file in =~/.emacs.d/=
+  
+* Org Mode and Markdown
+Org core configuration, directory layout, logging behavior, and export defaults.
+
+#+begin_src emacs-lisp
+  (use-package org
+    :mode (("\\.org\\'" . org-mode))
+    :ensure nil
+    :config
+    (setq org-log-done 'time)
+    (setq org-log-into-drawer t)
+
+    ;; Babel behavior
+    (setq org-confirm-babel-evaluate nil)
+    (setq org-export-babel-evaluate nil)
+
+    ;; Org directory
+    (setq org-directory (expand-file-name "~/Documents/org/")))
+#+end_src
+
+---
+
+** Org Babel
+Language setup and structure templates for fast source block insertion.
+
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)))
+
+  (require 'org-tempo)
+
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
+#+end_src
+
+---
+
+** Org and Markdown Navigation
+Consistent navigation between visible sections in Org and Markdown.
+
+#+begin_src emacs-lisp
+  (defun my-md-mode-hook ()
+    (define-key markdown-mode-map (kbd "C-v") #'markdown-next-visible-listing)
+    (define-key markdown-mode-map (kbd "M-v") #'markdown-previous-visible-listing))
+  (add-hook 'markdown-mode-hook #'my-md-mode-hook)
+
+  (defun my-org-mode-hook ()
+    (define-key org-mode-map (kbd "C-v") #'org-next-visible-heading)
+    (define-key org-mode-map (kbd "M-v") #'org-previous-visible-heading))
+  (add-hook 'org-mode-hook #'my-org-mode-hook)
+#+end_src
+
+---
+
+** Daemon Startup
+When Emacs starts as a daemon, automatically tangle this file.
+
+#+begin_src emacs-lisp
+  (when (daemonp)
+    (with-current-buffer (find-file-noselect "~/.emacs.d/Emacs.org")
+      (org-babel-tangle)))
+#+end_src
+
+---
+
+** Org Agenda
+Global agenda configuration restricted to a single todos file.
+
+M-x org-agenda
+
+From the agenda buffer:
+- t → cycle TODO state
+- S-LEFT / S-RIGHT → change state
+- RET → jump to task
+- C-k → kill task
+- , → set priority
+
+#+begin_src emacs-lisp
+  ;; Global todos file
+  (setq org-default-notes-file (expand-file-name "todos.org" org-directory))
+
+  ;; Ensure org directory + todos file exist
+  (unless (file-directory-p org-directory)
+    (make-directory org-directory t))
+
+  (unless (file-exists-p org-default-notes-file)
+    (with-temp-file org-default-notes-file
+      (insert "#+title: Todos\n\n* Inbox\n* Tasks\n* Done\n")))
+
+  ;; Agenda should only use this file
+  (setq org-agenda-files (list org-default-notes-file))
+#+end_src
+
+---
+
+*** Todo Keywords
+Workflow states for global task tracking.
+
+#+begin_src emacs-lisp
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "WIP(w)" "BLOCKED(b)" "|" "DONE(d)" "CANCELLED(c)")))
+#+end_src
+
+---
+
+** Org Capture
+Fast, on-the-fly task and note capture into the global todos file.
+
+#+begin_src emacs-lisp
+  (setq org-capture-templates
+        `(("t" "Todo" entry
+           (file+headline ,org-default-notes-file "Inbox")
+           "* TODO %?\n  %U\n  %a\n"
+           :empty-lines 1)
+          ("n" "Note" entry
+           (file+headline ,org-default-notes-file "Inbox")
+           "* %?\n  %U\n  %a\n"
+           :empty-lines 1)))
+
+  ;; Keybindings
+  (global-set-key (kbd "C-c c") #'org-capture)
+  (global-set-key (kbd "C-c a") #'org-agenda)
+#+end_src
+
+* Core UI and Editing Behaviour
+
+** avy
+Jump to visible character
+#+begin_src emacs-lisp
+  (use-package avy
+    :bind
+    (("M-j" . avy-goto-char)
+     ("M-J" . avy-goto-char-2)))
+#+end_src
+
+** no toolbar/tooltip/visual bell
+Startup tweaks, UI chrome, line numbers, fonts, and macOS modifier keys.
+#+begin_src emacs-lisp
+  (setq inhibit-startup-message t)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)
+  (tooltip-mode -1)
+  (set-fringe-mode 10)
+  (menu-bar-mode -1)
+  (setq visible-bell nil)
+
+
+#+end_src
+
+** Font
+#+begin_src emacs-lisp
+  (set-face-attribute 'default nil :font "Cousine Nerd Font Mono" :height 280)
+#+end_src
+
+** Mac Command Key is Meta
+#+begin_src emacs-lisp
+  (setq mac-option-key-is-meta nil
+        mac-command-key-is-meta t
+        mac-command-modifier 'meta
+        mac-option-modifier 'none)
+#+end_src
+
+** Number Lines
+#+begin_src emacs-lisp
+  (column-number-mode)
+  (global-display-line-numbers-mode t)
+  (setq-default tab-width 2)
+  (setq-default indent-tabs-mode nil)
+
+
+  (dolist (mode '(org-mode-hook
+  		term-mode-hook
+  		eshell-mode-hook
+  		helpful-mode-hook))
+    
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
+* Completion, Search, and Minibuffer UX
+Ivy/counsel/ivy-rich for minibuffer completion and search.
+
+#+begin_src emacs-lisp
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+	 ("C-x b" . counsel-ibuffer)
+	 ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history))
+  :config
+  (setq ivy-initial-inputs-alist nil))
+
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+	 :map ivy-minibuffer-map
+	 ("Tab" . ivy-alt-done)
+	 ("C-l" . ivy-alt-done)
+	 ("C-j" . ivy-next-line)
+	 ("C-k" . ivy-previous-line)
+	 :map ivy-switch-buffer-map
+	 ("C-k" . ivy-previoud-line)
+	 ("C-l" . ivy-done)
+	 ("C-d" . ivy-switch-buffer-kill)
+	 :map ivy-reverse-i-search-map
+	 ("C-k" . ivy-previous-line)
+	 ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+
+(use-package ivy-rich
+  :init
+  (ivy-rich-mode 1))
+#+end_src
+
+* Visual Enhancements
+Nerd icons, Doom modeline, and themes.
+
+#+begin_src emacs-lisp
+(use-package nerd-icons
+  ;; :custom
+  ;; The Nerd Font you want to use in GUI
+  ;; "Symbols Nerd Font Mono" is the default and is recommended
+  ;; but you can use any other Nerd Font if you want
+  ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
+  )
+
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 15)))
+
+(use-package doom-themes
+  :config
+  (load-theme 'doom-gruvbox t)
+  (doom-themes-org-config))
+#+end_src
+
+Smooth scrolling
+
+#+begin_src emacs-lisp
+  (setq scroll-conservatively 10
+        scroll-margin 15)
+#+end_src
+
+* Key Discovery and Help
+which-key and helpful integrations.
+
+#+begin_src emacs-lisp
+
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 0.3))
+
+
+(use-package helpful
+  :ensure t
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
+#+end_src
+
+* (Optional) General Keybinding Framework
+Commented-out =general.el= setup kept here for future expansion.
+
+#+begin_src emacs-lisp :tangle no
+;; useful for creating more complex keybindings later
+(use-package general
+  :config
+  (general-create-definer tlgs/magit
+    :prefix "M-g")
+
+  (tlgs/magit
+    "t"  '(:ignore t :which-key "toggles")
+    "tt" '(counsel-load-theme :which-key "choose theme")))
+#+end_src
+
+* Project Management
+Projectile and counsel-projectile for project navigation.
+
+#+begin_src emacs-lisp
+
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  (when (file-directory-p "~/Documents/projects/code")
+    (setq projectile-project-search-path '("~/Documents/projects/code")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
+#+end_src
+
+* Version Control
+** Magit
+Magit is an interactive, porcelain-style Git interface for Emacs.  
+Key features:
+- Status buffer (`magit-status`) as the main entry point  
+- Stage/unstage hunks or lines  
+- Commit, amend, reword, squash, fixup  
+- Browse logs, branches, remotes, stashes  
+- Interactive rebase UI  
+- Resolve merge conflicts in-buffer  
+- Push/pull with popups guiding available actions  
+- Transient-based menus allow discoverability (`?` always shows help)
+
+Key bindings (once Magit loads):
+- =C-x g= → `magit-status` for the current project  
+- =s= / =u= → stage / unstage  
+- =c c= → commit  
+- =P u= → push to upstream  
+- =F u= → pull from upstream  
+- =b b= → switch branches  
+- =l l= → log view  
+- =TAB= → expand a section  
+- =RET= → act on thing at point  
+
+Configuration below adds Magit, enables autosaving before commits, and improves commit message editing.
+
+#+begin_src emacs-lisp
+(use-package magit
+  :commands (magit-status magit-blame)
+  :bind (("C-x g" . magit-status))
+  :config
+  ;; Save buffers automatically when invoking Magit commands
+  (setq magit-save-repository-buffers 'dontask)
+
+  ;; Use the full frame for commit messages (optional)
+  (setq git-commit-fill-column 72
+        git-commit-summary-max-length 50)
+
+  ;; Show word-level diffs by default
+  (setq magit-diff-refine-hunk 'all))
+#+end_src
+
+** Magit Notes
+- Magit creates a “status buffer” representing repository state, not a shell interface.  
+- Everything is interactive: press ? on any popup to see available actions.  
+- Magit uses Transient menus: press key prefixes, then subcommands (e.g. =c c=).  
+- Rebase workflows are guided via `magit-rebase`; Magit validates operations before executing them.  
+- The “diff → stage → commit → push” loop mirrors Git’s conceptual model but exposes more structure.  
+- Magit automatically detects project roots (via Git repos) and uses them as context for all actions.
+
+* DAP Debugging (GUI-style debuggers)
+
+Use `dap-mode` + `dap-ui` as a generic, VS Code–style debugger front-end.
+This gives you:
+
+- Breakpoints in the fringe
+- Locals / call stack / sessions buffers
+- Watch / expressions buffer
+- Integrated debug REPL
+- Hover tooltips for values (when LSP supports it)
+
+Breakpoints:
+dap-breakpoint-toggle
+dap-breakpoint-delete-all
+dap-breakpoint-condition
+  
+dap-breakpoint-hit-condition
+
+dap-breakpoint-log-message
+
+** Core dap-mode configuration
+
+#+begin_src emacs-lisp
+  (use-package dap-mode
+    :after lsp-mode
+    :commands (dap-debug dap-debug-edit-template)
+    :init
+    ;; Let dap auto-wire UI pieces for common workflows.
+    (setq dap-auto-configure-features
+          '(sessions locals controls tooltip))
+    :config
+    ;; Turn on the global modes that make it feel "GUI-ish".
+    (dap-auto-configure-mode 1)
+    (dap-ui-mode 1)
+    (dap-tooltip-mode 1)
+    (tooltip-mode 1)
+    (dap-ui-controls-mode 1))
+#+end_src
+
+Notes:
+
+- `dap-debug` starts a debug session from a registered template.
+- `dap-debug-edit-template` lets you interactively edit / create templates, then
+  you `M-x eval-buffer` to persist them in your config.
+- Most “GUI stuff” lives in dedicated dap-ui buffers (locals, stack, etc.)
+  
+** Language adapters
+
+The Debug Adapter Protocol needs per-language “adapters” that talk to your
+runtime or underlying debugger. Below are the ones I’m using for Rust, Go,
+C/C++, Python, and JS/TS.
+
+*** Rust + C/C++ (LLDB / GDB via cpptools or codelldb)
+
+For native code, use either Microsoft’s cpptools adapter or codelldb.
+You can have both enabled; pick per-project via templates.
+
+#+begin_src emacs-lisp
+  ;; C/C++/Rust via VS Code C++ tools (cpptools).
+  (use-package dap-cpptools
+    :ensure nil
+    :after dap-mode
+    :config
+    ;; One-time helper to download the VS Code C++ extension and set up the
+    ;; debug adapter. You can comment this out after the first run if you want.
+    (dap-cpptools-setup))
+#+end_src
+
+If you prefer codelldb:
+
+#+begin_src emacs-lisp :tangle no
+  ;; Alternative: C/C++/Rust via codelldb.
+  ;; You need to have codelldb installed somewhere on your system.
+  (use-package dap-codelldb
+    :after dap-mode
+    :config
+    ;; Example adapter config if you want to override the default path:
+    ;; (setq dap-codelldb-debug-program '("/path/to/codelldb"))
+    )
+#+end_src
+
+You’ll later define project-specific templates that point to your compiled
+binary (e.g. `target/debug/myprog` for Rust, `build/myprog` for C/C++).
+
+*** Go (Delve DAP)
+
+Use Delve’s native DAP mode via `dap-dlv-go`.
+
+Prereqs: Go toolchain + Delve (`dlv`) installed.
+
+#+begin_src emacs-lisp
+  ;; Go debugging via Delve (dlv dap).
+  (use-package dap-dlv-go
+    :ensure nil
+    :after dap-mode)
+#+end_src
+
+Typical template will point `:program` at a package/main or binary; see
+project-local examples below.
+
+*** Python (debugpy)
+
+Use `dap-python`, which wraps the `debugpy` adapter. You’ll want a Python 3
+install and `debugpy` available in whatever environment you’re using.
+
+#+begin_src emacs-lisp
+  ;; Python debugging via debugpy.
+  (use-package dap-python
+    :ensure nil
+    :after dap-mode
+    :config
+    ;; Optionally tell dap-python how to find your interpreter.
+    ;; (setq dap-python-executable "python3")
+    )
+#+end_src
+
+Debug templates typically specify `:program` (entry script), `:cwd`, and
+optional `:args` / `:env`.
+
+*** JavaScript / TypeScript (Node)
+
+For Node-based debugging, use the Node adapter integration from `dap-mode`.
+You’ll need Node.js and a JS debug adapter (e.g. vscode-js-debug) installed.
+
+#+begin_src emacs-lisp
+  ;; Node.js debugging (JS/TS via node adapter).
+  (require 'dap-node)
+
+  ;; You may need to customize this to point at the JS debug adapter you install.
+  ;; Example (adjust paths to your system):
+  ;;
+  ;; (dap-register-debug-provider "node"
+  ;;   (lambda (conf)
+  ;;     (plist-put conf :debugServer 4711)
+  ;;     conf))
+  ;;
+  ;; (dap-register-debug-template
+  ;;  "Node::current file"
+  ;;  (list :type "node"
+  ;;        :request "launch"
+  ;;        :name "Node::current file"
+  ;;        :program "${file}"
+  ;;        :cwd "${workspaceFolder}"
+  ;;        :runtimeExecutable "node"))
+#+end_src
+
+For TS, you can point the adapter at either:
+
+- compiled JS (with source maps), or
+- a TS runner like `ts-node` as `:runtimeExecutable`.
+
+** Project-local debug templates (per language)
+
+Keep per-project DAP templates close to the code. I usually either:
+
+- put them in a small `project-debug.el` and load it via `.dir-locals.el`, or
+- keep them in a “Project-specific config” section of my Emacs.org and
+  manually evaluate when I’m working in that project.
+
+Debug Template for debugging c code on my m1 macbook pro
+
+#+begin_src emacs-lisp :tangle no
+  (require 'dap-mode)
+
+  (defun project-dap--register ()
+    "Register DAP debug templates for this project."
+    (require 'dap-cpptools)
+
+    (dap-register-debug-template
+     "c debug"
+     (list :type "cppdbg"
+           :request "launch"
+           :name "proj::cpp"
+           :MIMode "lldb"
+           :targetArchitecture "arm64"
+           :program (expand-file-name "build/tests"
+                                      (project-root (project-current)))
+           :cwd (project-root (project-current))
+           :stopAtEntry t)))
+
+  (project-dap--register)
+  (provide 'debug)
+
+#+end_src
+
+Example “skeletons” (not tangled by default):
+
+#+begin_src emacs-lisp :tangle no
+  ;; Rust: debug main binary built by `cargo build`.
+  (dap-register-debug-template
+   "Rust::main"
+   (list :type "lldb"                    ; or "cppdbg"
+         :request "launch"
+         :name "Rust::main"
+         :program "${workspaceFolder}/target/debug/myprog"
+         :cwd "${workspaceFolder}"))
+
+  ;; Go: debug current package / main file with Delve.
+  (dap-register-debug-template
+   "Go::current-file"
+   (list :type "go"
+         :request "launch"
+         :name "Go::current-file"
+         :mode "exec"
+         :program "${file}"
+         :cwd "${workspaceFolder}"))
+
+  ;; C/C++: debug compiled binary via cpptools.
+  (dap-register-debug-template
+   "C++::Debug"
+   (list :type "cppdbg"
+         :request "launch"
+         :name "C++::Debug"
+         :MIMode "gdb"                   ; or "lldb"
+         :program "${workspaceFolder}/build/myprog"
+         :cwd "${workspaceFolder}"
+         :stopAtEntry :json-false))
+
+  ;; Python: debug a main script.
+  (dap-register-debug-template
+   "Python::main"
+   (list :type "python"
+         :request "launch"
+         :name "Python::main"
+         :program "${workspaceFolder}/main.py"
+         :cwd "${workspaceFolder}"
+         :justMyCode :json-false))
+
+  ;; Node: debug current JS file.
+  (dap-register-debug-template
+   "Node::file"
+   (list :type "node"
+         :request "launch"
+         :name "Node::file"
+         :program "${file}"
+         :cwd "${workspaceFolder}"
+         :runtimeExecutable "node"))
+#+end_src
+
+Workflow:
+
+1. Make sure language server + adapter prereqs are installed for the project.
+2. Evaluate the relevant template forms (or the whole buffer).
+3. Run `M-x dap-debug` and select one of your named templates.
+4. Use the dap-ui buffers (sessions, locals, stack, expressions) as your
+   “GUI debugger” while stepping through code.
